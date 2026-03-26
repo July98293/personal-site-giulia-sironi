@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Giulia Sironi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IM+Fell+English:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper:   #f7f4ee;
+      --ink:     #1e1b2e;
+      --violet:  #5c4f8a;
+      --v2:      #7c6faa;
+      --v3:      #b8aed4;
+      --v4:      #ece9f5;
+      --muted:   #8a84a3;
+      --border:  #d0cade;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--paper);
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23f)' opacity='0.055'/%3E%3C/svg%3E");
+      color: var(--ink);
+      font-family: 'IM Fell English', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.72;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 900;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(30,27,46,0.05) 100%);
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── VERTICAL SIDEBAR NAV ── */
+    .sidenav {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      z-index: 100;
+      padding: 32px 0;
+    }
+
+    .sidenav a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      transition: color 0.2s;
+      user-select: none;
+    }
+
+    .sidenav a:hover,
+    .sidenav a.active { color: var(--violet); }
+
+    .sidenav-line {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      margin-left: 48px;
+      max-width: 680px;
+      width: 100%;
+      padding: 0 40px;
+      margin-right: auto;
+    }
+
+    .label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); display: block; margin-bottom: 40px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 88px 0 64px;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .tagline {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 14px;
+    }
+
+    .name {
+      font-family: 'Special Elite', monospace;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      letter-spacing: 0.01em; line-height: 1.05;
+      color: var(--ink); margin-bottom: 28px;
+    }
+
+    .name em { font-style: italic; color: var(--violet); font-family: 'IM Fell English', serif; }
+
+    .bio {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.95rem; color: #3a3550;
+      line-height: 1.9; max-width: 520px; margin-bottom: 20px;
+    }
+
+    .callout {
+      border-left: 2px solid var(--v3);
+      padding: 9px 16px;
+      font-family: 'Special Elite', monospace;
+      font-size: 0.85rem; color: var(--muted);
+      background: var(--v4);
+      border-radius: 0 3px 3px 0;
+      margin-bottom: 10px;
+    }
+
+    /* ── PROJECTS ── */
+    #projects { padding: 56px 0; }
+
+    /* each project row is a contained flex unit */
+    .proj-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 32px;
+      min-height: 130px;
+      overflow: visible;
+    }
+
+    /* the image — centered by default, slides left on open */
+    .proj-thumb {
+      width: 110px; height: 110px;
+      flex-shrink: 0;
+      background: var(--v4);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      /* default: centred in its row via auto margin */
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      font-family: 'Special Elite', monospace;
+      font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-align: center; padding: 10px;
+
+      /* transition: rotate + slide left */
+      transform: rotate(0deg) translateX(0px);
+      transition: transform 0.55s cubic-bezier(0.34, 1.2, 0.64, 1),
+                  box-shadow 0.4s ease;
+    }
+    .proj-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+
+    .proj-thumb:hover {
+      box-shadow: 0 6px 24px rgba(92,79,138,0.15);
+    }
+
+    /* when row is open: image rotates slightly + slides left */
+    .proj-row.open .proj-thumb {
+      transform: rotate(-6deg) translateX(-20px);
+      margin: 0;
+    }
+
+    /* name — hidden by default, fades in beside the image */
+    .proj-name-inline {
+      font-family: 'IM Fell English', serif;
+      font-size: 1.2rem; font-weight: 400;
+      letter-spacing: 0.01em; line-height: 1.25;
+      color: var(--ink);
+      /* sits right of image when closed */
+      padding-left: 24px;
+      flex: 0 0 auto;
+      max-width: 200px;
+      cursor: pointer;
+      transition: color 0.18s;
+    }
+    .proj-name-inline:hover { color: var(--violet); }
+
+    /* detail panel: slides in from right */
+    .proj-panel {
+      flex: 1;
+      overflow: hidden;
+      max-width: 0;
+      opacity: 0;
+      transition: max-width 0.5s cubic-bezier(0.4,0,0.2,1),
+                  opacity 0.4s ease 0.1s,
+                  padding 0.5s ease;
+      padding-left: 0;
+      /* clip to hide sliding content */
+      clip-path: inset(0);
+    }
+
+    .proj-row.open .proj-panel {
+      max-width: 500px;
+      opacity: 1;
+      padding-left: 28px;
+    }
+
+    .proj-panel-inner { min-width: 280px; }
+
+    .proj-open-name {
+      font-family: 'IM Fell English', serif;
+      font-size: 1.1rem; letter-spacing: 0.01em;
+      margin-bottom: 8px; line-height: 1.2; color: var(--violet);
+    }
+
+    .proj-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tag {
+      font-family: 'DM Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--violet); border: 1px solid var(--v3);
+      padding: 2px 7px; border-radius: 2px;
+    }
+
+    .proj-desc {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.85rem; color: #3a3550; line-height: 1.82;
+      margin-bottom: 14px;
+    }
+
+    .proj-links { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+    .proj-link {
+      font-family: 'DM Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--violet); text-decoration: none;
+      border-bottom: 1px solid var(--v3); padding-bottom: 1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .proj-link:hover { color: var(--ink); border-color: var(--ink); }
+
+    .proj-close {
+      font-family: 'DM Mono', monospace; font-size: 0.56rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); cursor: pointer;
+      transition: color 0.15s;
+    }
+    .proj-close:hover { color: var(--violet); }
+
+    /* ── BOOK PANEL — replaces proj-panel for illustration project ── */
+    .proj-panel-book {
+      flex: 1;
+      overflow: hidden;
+      max-width: 0;
+      opacity: 0;
+      transition: max-width 0.5s cubic-bezier(0.4,0,0.2,1),
+                  opacity 0.4s ease 0.1s,
+                  padding 0.5s ease;
+      padding-left: 0;
+    }
+    .proj-row.open .proj-panel-book {
+      max-width: 600px;
+      opacity: 1;
+      padding-left: 28px;
+    }
+
+    .book-wrapper {
+      min-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .book-meta { }
+    .book-meta .proj-open-name { margin-bottom: 8px; }
+
+    /* book itself */
+    .book-stage {
+      position: relative;
+      width: 160px;
+      height: 180px;
+      margin-left: 80px;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
+
+    /* book cover backing */
+    .book-cover-back {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, #5c4f8a 0%, #3a2f6a 100%);
+      border-radius: 2px 6px 6px 2px;
+      box-shadow: -4px 4px 16px rgba(30,27,46,0.25);
+    }
+
+    .book-stage input[type=checkbox] { display: none; }
+
+    .book-stage .pages,
+    .book-stage .pages > div {
+      position: absolute;
+      top: 0; left: 0;
+      transform-style: preserve-3d;
+    }
+
+    .book-stage .pages {
+      width: 100%; height: 98%;
+      top: 1%; left: 3%;
+      z-index: 10;
+    }
+
+    .book-stage .pages > div {
+      width: 100%; height: 100%;
+      transform-origin: left center;
+      transition: transform 1s ease;
+      background: linear-gradient(to right, #ddd8d0 0%, #fffbf6 100%);
+      box-shadow: inset 0px -1px 2px rgba(50,50,50,0.1),
+                  inset -1px 0px 1px rgba(150,150,150,0.2);
+      border-radius: 0 5px 5px 0;
+    }
+
+    .book-stage .pages > div:hover {
+      box-shadow: inset 1px 0px 2px rgba(50,50,50,0.1),
+                  inset -3px 1px 1px rgba(150,150,150,0.2);
+    }
+
+    .book-stage .pages > div label {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* page content labels — little violet scribbles */
+    .book-stage .pages > div label::after {
+      content: '';
+      display: block;
+      width: 60%;
+      height: 2px;
+      background: var(--v3);
+      border-radius: 2px;
+      opacity: 0.5;
+    }
+
+    /* resting angles */
+    #bp1 ~ .pages div.bp1 { transform: rotateY(-34deg); }
+    #bp2 ~ .pages div.bp2 { transform: rotateY(-32deg); }
+    #bp3 ~ .pages div.bp3 { transform: rotateY(-30deg); }
+    #bp4 ~ .pages div.bp4 { transform: rotateY(-28deg); }
+
+    /* flipped angles */
+    #bp1:checked ~ .pages div.bp1 { transform: rotateY(-140deg); }
+    #bp2:checked ~ .pages div.bp2 { transform: rotateY(-140deg); }
+    #bp3:checked ~ .pages div.bp3 { transform: rotateY(-140deg); }
+    #bp4:checked ~ .pages div.bp4 { transform: rotateY(-140deg); }
+
+    .book-hint {
+      font-family: 'DM Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); margin-top: 8px;
+    }
+
+    /* ── ITALIAN / EXPLORER SECTION ── */
+    #explorer {
+      padding: 80px 0;
+      position: relative;
+      overflow: hidden;
+      min-height: 340px;
+    }
+
+    .explorer-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .explorer-heading {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      color: var(--violet);
+      line-height: 1.2;
+      margin-bottom: 12px;
+      max-width: 440px;
+    }
+
+    .explorer-sub {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.88rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      max-width: 360px;
+      line-height: 1.7;
+    }
+
+    /* floating illustrations around the text */
+    .float-art {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* coffee cup — top right */
+    .float-coffee {
+      right: 20px; top: 30px;
+      animation: float1 6s ease-in-out infinite;
+    }
+
+    /* sun/moon — bottom left */
+    .float-sun {
+      left: -10px; bottom: 20px;
+      animation: float2 7s ease-in-out infinite;
+    }
+
+    /* little scribble bird — center right */
+    .float-bird {
+      right: 80px; bottom: 60px;
+      animation: float3 5s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translateY(0px) rotate(-3deg); }
+      50%       { transform: translateY(-14px) rotate(2deg); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translateY(0px) rotate(4deg); }
+      50%       { transform: translateY(-10px) rotate(-2deg); }
+    }
+    @keyframes float3 {
+      0%, 100% { transform: translateY(0px) rotate(-1deg) scale(1); }
+      33%       { transform: translateY(-8px) rotate(3deg) scale(1.04); }
+      66%       { transform: translateY(4px) rotate(-2deg) scale(0.97); }
+    }
+
+    /* ── WRITING ── */
+    #writing { padding: 56px 0; }
+
+    .writing-intro {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.93rem; margin-bottom: 28px; line-height: 1.85; color: #3a3550;
+    }
+    .writing-intro em { font-style: italic; color: var(--violet); font-family: 'IM Fell English', serif; }
+
+    .article-list { list-style: none; }
+    .article-list a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 0; color: var(--ink); text-decoration: none;
+      font-family: 'IM Fell English', serif; font-size: 1rem;
+      transition: color 0.15s;
+    }
+    .article-list a:hover { color: var(--violet); }
+    .art-tag {
+      font-family: 'DM Mono', monospace; font-size: 0.56rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); border: 1px solid var(--border);
+      padding: 2px 6px; border-radius: 2px; flex-shrink: 0;
+    }
+    .art-arrow { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); margin-left: auto; flex-shrink: 0; transition: color 0.15s; }
+    .article-list a:hover .art-arrow { color: var(--violet); }
+
+    .more-link {
+      display: inline-block; margin-top: 20px;
+      font-family: 'DM Mono', monospace; font-size: 0.62rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--violet); text-decoration: none;
+      border-bottom: 1px solid var(--v3); padding-bottom: 2px;
+      transition: color 0.15s;
+    }
+    .more-link:hover { color: var(--ink); border-color: var(--ink); }
+
+    /* ── RESOURCES ── */
+    #resources { padding: 56px 0; }
+
+    .res-group { margin-bottom: 36px; }
+    .res-group-title {
+      font-family: 'DM Mono', monospace; font-size: 0.62rem;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .res-group-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .res-list { list-style: none; }
+    .res-list a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 0; color: var(--ink); text-decoration: none;
+      font-family: 'IM Fell English', serif; font-size: 0.95rem;
+      transition: color 0.15s;
+    }
+    .res-list a:hover { color: var(--violet); }
+    .res-url {
+      font-family: 'DM Mono', monospace; font-size: 0.56rem;
+      color: var(--muted); margin-left: auto;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
+    }
+
+    /* ── CHAT ── */
+    #chat { padding: 64px 0 80px; }
+
+    .chat-section { display: flex; align-items: center; gap: 48px; }
+    .chair-wrap { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+    .chair-placeholder {
+      width: 140px; height: 150px;
+      background: var(--v4); border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Special Elite', monospace; font-size: 0.5rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-align: center; padding: 14px;
+    }
+
+    .chair-label {
+      font-family: 'DM Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+    }
+
+    .chat-copy { flex: 1; }
+    .chat-heading {
+      font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+      margin-bottom: 14px; line-height: 1.1; color: var(--violet);
+    }
+    .chat-body {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.88rem; color: #3a3550; line-height: 1.88;
+      max-width: 360px; margin-bottom: 22px;
+    }
+    .chat-btn {
+      display: inline-block; font-family: 'DM Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--paper); background: var(--violet); text-decoration: none;
+      padding: 9px 20px; border-radius: 2px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .chat-btn:hover { background: var(--ink); transform: translateY(-1px); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 20px 0 56px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-left {
+      font-family: 'DM Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+    }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-link {
+      font-family: 'DM Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color 0.15s;
+    }
+    .footer-link:hover { color: var(--violet); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .sidenav { display: none; }
+      .main { margin-left: 0; padding: 0 24px; }
+      .chat-section { flex-direction: column; gap: 28px; }
+      .proj-detail { padding-left: 0; }
+      .proj-open-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── VERTICAL SIDEBAR NAV ── -->
+<nav class="sidenav">
+  <div class="sidenav-line"></div>
+  <a href="#projects">Projects</a>
+  <a href="#writing">Articles</a>
+  <a href="#resources">Resources</a>
+  <div class="sidenav-line"></div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- HEADER -->
+  <header>
+    <p class="tagline">Researcher · Builder</p>
+    <h1 class="name">Giulia <em>Sironi</em></h1>
+    <p class="bio">
+      Hey there, welcome! What brings you here?<br>
+      …well, you'll find a mix of projects I've worked on over the years, alongside occasional stream of consciousness. Browse around, and have fun!
+    </p>
+    
+  </header>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <span class="label">Selected Projects</span>
+
+    <!-- Project 1 -->
+    <div class="proj-row" id="row-p1">
+      <div class="proj-thumb" onclick="toggleRow('p1')">INSERT IMAGE HERE</div>
+      <span class="proj-name-inline" onclick="toggleRow('p1')">Plasmid Pipeline</span>
+      <div class="proj-panel">
+        <div class="proj-panel-inner">
+          <div class="proj-open-name">Plasmid Pipeline</div>
+          <div class="proj-tags"><span class="tag">biotech</span><span class="tag">multi-agent</span><span class="tag">AI</span></div>
+          <p class="proj-desc">A multi-agent system (Orchestrator + 8 sub-agents) that converts natural language descriptions into plasmid design files. Handles sequence assembly, feature annotation, and export — making genetic engineering accessible without deep bioinformatics expertise. Preprint in preparation targeting <em>Nucleic Acids Research</em> or <em>Bioinformatics</em>.</p>
+          <div class="proj-links">
+            <a class="proj-link" href="https://github.com" target="_blank">GitHub →</a>
+            <a class="proj-link" href="#" target="_blank">Preprint →</a>
+          </div>
+          <span class="proj-close" onclick="toggleRow('p1')">← close</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project 2 -->
+    <div class="proj-row" id="row-p2">
+      <div class="proj-thumb" onclick="toggleRow('p2')">INSERT IMAGE HERE</div>
+      <span class="proj-name-inline" onclick="toggleRow('p2')">Protein Engineering Pipeline</span>
+      <div class="proj-panel">
+        <div class="proj-panel-inner">
+          <div class="proj-open-name">Protein Engineering Pipeline</div>
+          <div class="proj-tags"><span class="tag">ML</span><span class="tag">protein</span><span class="tag">ESM-2</span></div>
+          <p class="proj-desc">A bidirectional ML pipeline mapping ESM-2 embeddings to physical and chemical protein properties. Long-term goal: describe what you want a protein to do in plain language, get a candidate sequence back. Built in PyTorch with z-score normalization and Adam optimization.</p>
+          <div class="proj-links">
+            <a class="proj-link" href="https://github.com" target="_blank">GitHub →</a>
+          </div>
+          <span class="proj-close" onclick="toggleRow('p2')">← close</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project 3 -->
+    <div class="proj-row" id="row-p3">
+      <div class="proj-thumb" onclick="toggleRow('p3')">INSERT IMAGE HERE</div>
+      <span class="proj-name-inline" onclick="toggleRow('p3')">Spatial Reasoning in Foundation Models</span>
+      <div class="proj-panel">
+        <div class="proj-panel-inner">
+          <div class="proj-open-name">Spatial Reasoning in Foundation Models</div>
+          <div class="proj-tags"><span class="tag">AI</span><span class="tag">review</span><span class="tag">benchmarks</span></div>
+          <p class="proj-desc">A review paper arguing transformers treat geometry as linguistic content rather than a structural primitive — introducing <em>geometry-descriptive</em> vs <em>geometry-native</em> reasoning. Synthesizes six benchmarks, proposes a five-category failure taxonomy, introduces MIPB. Targeting arXiv (cs.AI).</p>
+          <div class="proj-links">
+            <a class="proj-link" href="https://arxiv.org" target="_blank">arXiv →</a>
+          </div>
+          <span class="proj-close" onclick="toggleRow('p3')">← close</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project 4 — Illustration Book -->
+    <div class="proj-row" id="row-p4">
+      <div class="proj-thumb" onclick="toggleRow('p4')">INSERT IMAGE HERE</div>
+      <span class="proj-name-inline" onclick="toggleRow('p4')">Illustration Book</span>
+      <div class="proj-panel-book">
+        <div class="book-wrapper">
+          <div class="book-meta">
+            <div class="proj-open-name">Illustration Book</div>
+            <div class="proj-tags"><span class="tag">illustration</span><span class="tag">art</span><span class="tag">print</span></div>
+            <p class="proj-desc" style="max-width:260px;">A collection of drawings, prints, and visual experiments — click the pages to flip through.</p>
+            <span class="proj-close" onclick="toggleRow('p4')" style="display:inline-block;margin-bottom:12px;">← close</span>
+          </div>
+
+          <!-- the book -->
+          <div class="book-stage">
+            <div class="book-cover-back"></div>
+            <input type="checkbox" name="bp1" id="bp1">
+            <input type="checkbox" name="bp2" id="bp2">
+            <input type="checkbox" name="bp3" id="bp3">
+            <input type="checkbox" name="bp4" id="bp4">
+            <div class="pages">
+              <div class="bp1"><label for="bp1"></label></div>
+              <div class="bp2"><label for="bp2"></label></div>
+              <div class="bp3"><label for="bp3"></label></div>
+              <div class="bp4"><label for="bp4"></label></div>
+            </div>
+          </div>
+          <p class="book-hint">click pages to flip →</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 40px;">
+      🚨 WOOO still around? Someone is curious 👀
+    </div>
+  </section>
+
+  <!-- WRITING -->
+  <section id="writing">
+    <span class="label">Writing</span>
+    <p class="writing-intro">
+      Some writing on topics I'm passionate about.<br>
+      <em>Science, Sci-Fi, Policy, AI,</em> and occasionally personal reflection.
+    </p>
+    <ul class="article-list">
+      <li><a href="https://mahabahu.com/engineer-ourself-and-nature/" target="_blank">Engineer Ourselves and Nature <span class="art-tag">essay</span><span class="art-arrow">→</span></a></li>
+      <li><a href="https://youthpressagency.org/2024/11/24/italys-commitment-climate-finance/" target="_blank">Italy's Commitment to Climate Finance <span class="art-tag">COP29</span><span class="art-arrow">→</span></a></li>
+      <li><a href="https://youthpressagency.org/2024/11/24/cop29-a-future-of-fire-unep/" target="_blank">COP29: A Future of Fire — UNEP <span class="art-tag">COP29</span><span class="art-arrow">→</span></a></li>
+      <li><a href="https://youthpressagency.org/2024/11/24/mobilizing-the-trillions-climate-finance/" target="_blank">Mobilizing the Trillions: Climate Finance <span class="art-tag">COP29</span><span class="art-arrow">→</span></a></li>
+      <li><a href="https://youthpressagency.org/2024/11/20/cities-victims-pioneers-and-theatre-of-climate-action/" target="_blank">Cities: Victims, Pioneers, and Theatre of Climate Action <span class="art-tag">COP29</span><span class="art-arrow">→</span></a></li>
+    </ul>
+    <a class="more-link" href="https://medium.com/@giulia.sironi.02" target="_blank">More on Medium →</a>
+  </section>
+
+  <!-- RESOURCES -->
+  <section id="resources">
+    <span class="label">Free Resources</span>
+
+    <div class="res-group">
+      <div class="res-group-title"> Science &amp; Biotech</div>
+      <ul class="res-list">
+        <li><a href="https://swissmodel.expasy.org" target="_blank">SWISS-MODEL — Protein structure homology modelling <span class="res-url">swissmodel.expasy.org</span></a></li>
+        <li><a href="https://platform.futurehouse.org/" target="_blank">Future House Platform — AI for scientific research <span class="res-url">futurehouse.org</span></a></li>
+        <li><a href="https://consensus.app/" target="_blank">Consensus — AI-powered research paper search <span class="res-url">consensus.app</span></a></li>
+        <li><a href="https://www.rxrx.ai/boltz-2/" target="_blank">Boltz-2 — Biomolecular structure prediction <span class="res-url">rxrx.ai</span></a></li>
+        <li><a href="https://nebuilder.neb.com/#!/add/" target="_blank">NEBuilder — Gibson assembly design tool <span class="res-url">nebuilder.neb.com</span></a></li>
+        <li><a href="https://www.tamarind.bio/" target="_blank">Tamarind Bio — Computational protein tools <span class="res-url">tamarind.bio</span></a></li>
+        <li><a href="https://agingbiotech.info/databases/" target="_blank">Aging Biotech — Database on aging <span class="res-url">agingbiotech.info</span></a></li>
+        <li><a href="https://www.youtube.com/watch?v=RL25hgfLd8Q" target="_blank">Drug Discovery lecture — Great intro video <span class="res-url">youtube.com</span></a></li>
+        <li><a href="https://www.biotechinjanutshell.com" target="_blank">Biotech In a Nutshell — Course for biotech lovers <span class="res-url">biotechinjanutshell.com</span></a></li>
+      </ul>
+    </div>
+
+  </section>
+
+  <!-- CHAT -->
+  <section id="chat">
+    <div class="chat-section">
+      <div class="chair-wrap">
+        <div class="chair-placeholder">INSERT IMAGE HERE</div>
+        <span class="chair-label">pull up a chair.</span>
+      </div>
+      <div class="chat-copy">
+        <h2 class="chat-heading">have a chat?</h2>
+        <p class="chat-body">Blame it on being Italian, I’m a lover of good conversation. The future, something you’ve been reading, or a weird idea you can’t let go of. No agenda needed, just drop a line :D </p>
+        <a class="chat-btn" href="/cdn-cgi/l/email-protection#caada3bfa6a3abe4b9a3b8a5a4a3e4faf88aada7aba3a6e4a9a5a7"><span class="__cf_email__" data-cfemail="65020c10090c044b160c170a0b0c4b5557250208040c094b060a08">[email&#160;protected]</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-left">Giulia Sironi — 2026</span>
+    <div class="footer-links">
+      <a class="footer-link" href="https://medium.com/@giulia.sironi.02" target="_blank">Medium</a>
+      <a class="footer-link" href="https://github.com" target="_blank">GitHub</a>
+      <a class="footer-link" href="/cdn-cgi/l/email-protection#b5d2dcc0d9dcd49bc6dcc7dadbdc9b8587f5d2d8d4dcd99bd6dad8">Email</a>
+    </div>
+  </footer>
+
+</div><!-- end .main -->
+
+<script>
+  function toggleRow(id) {
+    const row = document.getElementById('row-' + id);
+    const isOpen = row.classList.contains('open');
+    document.querySelectorAll('.proj-row').forEach(r => r.classList.remove('open'));
+    if (!isOpen) row.classList.add('open');
+  }
+
+  // highlight active nav on scroll
+  const sections = ['projects','explorer','writing','resources','chat'];
+  const navLinks = document.querySelectorAll('.sidenav a');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 120) cur = id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
+    });
+  });
+</script>
+
+</body>
+</html>
