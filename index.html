@@ -174,9 +174,9 @@
       box-shadow: 0 6px 24px rgba(92,79,138,0.15);
     }
 
-    /* when row is open: image rotates slightly + slides left */
+    /* when row is open: image rotates MORE + slides left */
     .proj-row.open .proj-thumb {
-      transform: rotate(-6deg) translateX(-20px);
+      transform: rotate(-18deg) translateX(-20px);
       margin: 0;
     }
 
@@ -201,15 +201,17 @@
       overflow: hidden;
       max-width: 0;
       opacity: 0;
-      transition: max-width 0.5s cubic-bezier(0.4,0,0.2,1),
-                  opacity 0.4s ease 0.1s,
-                  padding 0.5s ease;
       padding-left: 0;
       /* clip to hide sliding content */
       clip-path: inset(0);
+      display: none;
+      transition: max-width 0.5s cubic-bezier(0.4,0,0.2,1),
+                  opacity 0.4s ease 0.1s,
+                  padding 0.5s ease;
     }
 
     .proj-row.open .proj-panel {
+      display: flex;
       max-width: 500px;
       opacity: 1;
       padding-left: 28px;
@@ -261,12 +263,14 @@
       overflow: hidden;
       max-width: 0;
       opacity: 0;
+      padding-left: 0;
+      display: none;
       transition: max-width 0.5s cubic-bezier(0.4,0,0.2,1),
                   opacity 0.4s ease 0.1s,
                   padding 0.5s ease;
-      padding-left: 0;
     }
     .proj-row.open .proj-panel-book {
+      display: flex;
       max-width: 600px;
       opacity: 1;
       padding-left: 28px;
@@ -523,7 +527,7 @@
       letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
     }
 
-    .chat-copy { flex: 1; }
+    .chat-copy { flex: 1; position: relative; }
     .chat-heading {
       font-family: 'IM Fell English', serif; font-style: italic;
       font-size: clamp(1.8rem, 4.5vw, 2.8rem);
@@ -534,14 +538,40 @@
       font-size: 0.88rem; color: #3a3550; line-height: 1.88;
       max-width: 360px; margin-bottom: 22px;
     }
+    
+    .chat-btn-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
     .chat-btn {
       display: inline-block; font-family: 'DM Mono', monospace;
       font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
       color: var(--paper); background: var(--violet); text-decoration: none;
       padding: 9px 20px; border-radius: 2px;
       transition: background 0.2s, transform 0.15s;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
     }
     .chat-btn:hover { background: var(--ink); transform: translateY(-1px); }
+
+    /* Coffee image reveal */
+    .coffee-reveal {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      width: 160px;
+      height: 180px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .coffee-reveal.show {
+      opacity: 1;
+    }
 
     /* ── FOOTER ── */
     footer {
@@ -571,12 +601,102 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .proj-row {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: auto;
+      }
+
+      .proj-thumb {
+        margin: 0 0 16px 0;
+        width: 140px;
+        height: 140px;
+      }
+
+      .proj-name-inline {
+        display: none;
+      }
+
+      .proj-row.open .proj-thumb {
+        transform: rotate(-18deg) translateX(0px);
+        margin: 0 0 16px 0;
+      }
+
+      .proj-panel {
+        flex: none;
+        width: 100%;
+        max-width: none;
+        opacity: 0;
+        padding: 0;
+      }
+
+      .proj-row.open .proj-panel {
+        max-width: none;
+        opacity: 1;
+        padding: 0;
+      }
+
+      .chat-section {
+        flex-direction: column;
+        gap: 28px;
+      }
+    }
+
     @media (max-width: 600px) {
       .sidenav { display: none; }
       .main { margin-left: 0; padding: 0 24px; }
+      
+      header { padding: 56px 0 48px; }
+      
+      .proj-row {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: auto;
+      }
+
+      .proj-thumb {
+        margin: 0 0 16px 0;
+        width: 120px;
+        height: 120px;
+      }
+
+      .proj-name-inline {
+        display: none;
+      }
+
+      .proj-panel {
+        flex: none;
+        width: 100%;
+        max-width: none;
+        opacity: 0;
+        padding: 0;
+      }
+
+      .proj-row.open .proj-panel {
+        max-width: none;
+        opacity: 1;
+        padding: 0;
+      }
+
       .chat-section { flex-direction: column; gap: 28px; }
       .proj-detail { padding-left: 0; }
       .proj-open-inner { flex-direction: column; }
+
+      .book-stage {
+        margin-left: 0;
+      }
+
+      .chat-copy {
+        flex: none;
+        width: 100%;
+      }
+
+      .chat-btn-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 
@@ -591,6 +711,7 @@
   <a href="#projects">Projects</a>
   <a href="#writing">Articles</a>
   <a href="#resources">Resources</a>
+  <a href="#chat">Contact</a>
   <div class="sidenav-line"></div>
 </nav>
 
@@ -854,7 +975,7 @@
         <img src="https://github.com/July98293/personal-site/raw/main/2.png" alt="Clinostat" onerror="this.style.display='none'">
         <span style="position:absolute"> </span>
       </div>
-      <span class="proj-name-inline" onclick="toggleRow('p10')">Clinostat 🦠</span>
+      <span class="proj-name-inline" onclick="toggleRow('p10')">Clinostat</span>
       <div class="proj-panel">
         <div class="proj-panel-inner">
           <div class="proj-open-name">Clinostat — microgravity &amp; wound healing</div>
@@ -995,7 +1116,7 @@
     <span class="label">Free Resources</span>
 
     <div class="res-group">
-      <div class="res-group-title"> Science &amp; Biotech</div>
+      <div class="res-group-title">Science &amp; Biotech</div>
       <ul class="res-list">
         <li><a href="https://swissmodel.expasy.org" target="_blank">SWISS-MODEL — Protein structure homology modelling <span class="res-url">swissmodel.expasy.org</span></a></li>
         <li><a href="https://platform.futurehouse.org/" target="_blank">Future House Platform — AI for scientific research <span class="res-url">futurehouse.org</span></a></li>
@@ -1015,7 +1136,7 @@
   <section id="chat">
     <div class="chat-section">
       <div class="chair-wrap">
-        <img src="https://github.com/July98293/personal-site/raw/main/chair.png"
+        <img id="chairImg" src="https://github.com/July98293/personal-site/raw/main/chair.png"
              alt="Chair"
              style="width:240px;"
              onerror="this.style.display='none';">
@@ -1024,7 +1145,10 @@
       <div class="chat-copy">
         <h2 class="chat-heading">have a chat?</h2>
         <p class="chat-body">Blame it on being Italian, I'm a lover of good conversation. The future, something you've been reading, or a weird idea you can't let go of. No agenda needed, just drop a line :D </p>
-        <a class="chat-btn" href="/cdn-cgi/l/email-protection#caade3bfa6a3abe4b9a3b8a5a4a3e4faf88aada7aba3a6e4a9a5a7"><span class="__cf_email__" data-cfemail="65020c10090c044b160c170a0b0c4b5557250208040c094b060a08">[email&#160;protected]</span></a>
+        <div class="chat-btn-wrapper">
+          <button class="chat-btn" onclick="revealEmail()">Send me a message</button>
+          <img id="coffeeImg" class="coffee-reveal" src="https://github.com/July98293/personal-site/raw/main/coffee.png" alt="Coffee">
+        </div>
       </div>
     </div>
   </section>
@@ -1035,7 +1159,7 @@
     <div class="footer-links">
       <a class="footer-link" href="https://medium.com/@giulia.sironi.02" target="_blank">Medium</a>
       <a class="footer-link" href="https://github.com" target="_blank">GitHub</a>
-      <a class="footer-link" href="/cdn-cgi/l/email-protection#b5d2dcc0d9dcd49bc6dcc7dadbdc9b8587f5d2d8d4dcd99bd6dad8">Email</a>
+      <a class="footer-link" href="mailto:giulia.sironi.02@gmail.com">Email</a>
     </div>
   </footer>
 
@@ -1049,8 +1173,25 @@
     if (!isOpen) row.classList.add('open');
   }
 
+  function revealEmail() {
+    const coffeeImg = document.getElementById('coffeeImg');
+    const chairImg = document.getElementById('chairImg');
+    
+    coffeeImg.classList.toggle('show');
+    
+    if (coffeeImg.classList.contains('show')) {
+      chairImg.style.opacity = '0.3';
+      // Copy email to clipboard
+      const email = 'giulia.sironi.02@gmail.com';
+      navigator.clipboard.writeText(email);
+      alert('Email copied: ' + email);
+    } else {
+      chairImg.style.opacity = '1';
+    }
+  }
+
   // highlight active nav on scroll
-  const sections = ['projects','explorer','writing','resources','chat'];
+  const sections = ['projects','writing','resources','chat'];
   const navLinks = document.querySelectorAll('.sidenav a');
   window.addEventListener('scroll', () => {
     let cur = '';
